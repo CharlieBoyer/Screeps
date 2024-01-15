@@ -78,7 +78,6 @@ module.exports = function (grunt) {
 
     },
 
-
     // Copy files to the folder the client uses to sink to the private server.
     // Use rsync so the client only uploads the changed files.
     rsync: {
