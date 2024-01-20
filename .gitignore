@@ -1,6 +1,9 @@
+<<<<<<< HEAD
 # Exclude IDs, Token and Screeps config. file
 .screeps.json
 
+=======
+>>>>>>> parent of a6fde8a (Erase base files for custom roles (unfinished))
 # Logs
 logs
 *.log
