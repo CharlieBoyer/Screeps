@@ -1,37 +1,45 @@
-let harvester = require('harvester');
-let carrier = require('carrier');
-let administrator = require('administrator');
-let builder = require('builder');
+global.utils = require('utils');
+global.memory = require('memory');
+
+let base = require('structure.base');
+let harvester = require('role.harvester');
+let controller = require('role.controller');
+let builder = require('role.builder');
+
+memory.init();
 
 module.exports.loop = function () {
 
-    carrier.spawn(Game.spawn['HQ'], 3);
-
-    /* var tower = Game.getObjectById('030da32850fef02fae7382cf');
-    if(tower) {
-        var closestDamagedStructure = tower.pos.findClosestByRange(FIND_STRUCTURES, {
-            filter: (structure) => structure.hits < structure.hitsMax
-        });
-        if(closestDamagedStructure) {
-            tower.repair(closestDamagedStructure);
-        }
-
-        var closestHostile = tower.pos.findClosestByRange(FIND_HOSTILE_CREEPS);
-        if(closestHostile) {
-            tower.attack(closestHostile);
+    // Clean Memory
+    for (let i in Memory.creeps) {
+        if(!Game.creeps[i]) {
+            delete Memory.creeps[i];
         }
     }
 
-    for(var name in Game.creeps) {
-        var creep = Game.creeps[name];
-        if(creep.memory.role == 'harvester') {
-            roleHarvester.run(creep);
+    for (let name in Game.spawns)
+    {
+        let spawn = Game.spawns[name];
+
+        switch (spawn.memory.type)
+        {
+            case 'base':
+                base.run(spawn);
         }
-        if(creep.memory.role == 'upgrader') {
-            roleUpgrader.run(creep);
+    }
+
+    for (let name in Game.creeps)
+    {
+        let creep = Game.creeps[name];
+
+        if (creep.memory.role === 'harvester') {
+            harvester.run(creep);
         }
-        if(creep.memory.role == 'builder') {
-            roleBuilder.run(creep);
+        if (creep.memory.role === 'controller') {
+            controller.run(creep);
         }
-    } */
+        if (creep.memory.role === 'builder') {
+            builder.run(creep);
+        }
+    }
 }

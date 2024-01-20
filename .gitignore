@@ -1,4 +1,4 @@
-# .screeps settings & token
+# Exclude IDs, Token and Screeps config. file
 .screeps.json
 
 # Logs
