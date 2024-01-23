@@ -2,21 +2,35 @@ module.exports = {
 
      init: function()
      {
-          Memory.role = {};
+          Memory.harvester = {};
+          Memory.harvester.count = 0;
+          Memory.harvester.target = 4;
 
-          Memory.role.harvester = {}
-          Memory.role.harvester.count = 0;
+         Memory.builder = {};
+         Memory.builder.count = 0;
+         Memory.builder.target = 2;
 
-          Memory.role.builder = {}
-          Memory.role.builder.count = 0;
-
-          Memory.role.controller = {}
-          Memory.role.controller.count = 0;
+         Memory.controller = {};
+         Memory.controller.count = 0;
+         Memory.controller.target = 1;
      },
 
-     flushUnitCounters: function() {
-          for (let role in Memory.role) {
-               role.count = 0;
-          }
-     }
+     update: function() {
+          const updatedMemory = Object.keys(Memory.creeps) // Always prefer to construct new data instead of modifying it
+              .filter(creepName => Game.creeps[creepName]) // Filters out the dead creeps
+              .reduce((acc, creepName) => {
+                   acc[creepName] = Memory.creeps[creepName];
+                   return acc;  // constructs a new object with the remaining live creeps
+              }, {});
+
+         const newMemory = { ...Memory, creeps: updatedMemory }; // Recreate a Memory object
+
+         const roles = ['harvester', 'builder', 'controller'];
+         roles.forEach(role => {
+             newMemory[role] = { count: _.filter(updatedMemory, { role }).length };
+         });
+
+         Object.assign(Memory, newMemory);
+     },
+
 }

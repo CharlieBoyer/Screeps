@@ -1,21 +1,17 @@
 global.utils = require('utils');
 global.memory = require('memory');
 
-let base = require('structure.base');
-let harvester = require('role.harvester');
-let controller = require('role.controller');
-let builder = require('role.builder');
+const base = require('structure.base');
+const harvester = require('role.harvester');
+const controller = require('role.controller');
+const builder = require('role.builder');
 
 memory.init();
+base.init();
 
 module.exports.loop = function () {
 
-    // Clean Memory
-    for (let i in Memory.creeps) {
-        if(!Game.creeps[i]) {
-            delete Memory.creeps[i];
-        }
-    }
+    memory.update();
 
     for (let name in Game.spawns)
     {
