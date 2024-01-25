@@ -1,6 +1,12 @@
-global.utils = require('utils');
-global.memory = require('memory');
+// Prototypes overload
+require('addons.creepAddons');
+require('addons.structureAddons');
 
+// Globals & Utils
+global.memory = require('memory');
+global.filters = require('utils.filters');
+
+// Modules
 const base = require('structure.base');
 const harvester = require('role.harvester');
 const controller = require('role.controller');
@@ -16,25 +22,20 @@ module.exports.loop = function () {
     for (let name in Game.spawns)
     {
         let spawn = Game.spawns[name];
-
-        switch (spawn.memory.type)
-        {
-            case 'base':
-                base.run(spawn);
-        }
+        base.run(spawn);
     }
 
     for (let name in Game.creeps)
     {
         let creep = Game.creeps[name];
 
-        if (creep.memory.role === 'harvester') {
+        if (creep.role() === 'harvester') {
             harvester.run(creep);
         }
-        if (creep.memory.role === 'controller') {
+        if (creep.role() === 'controller') {
             controller.run(creep);
         }
-        if (creep.memory.role === 'builder') {
+        if (creep.role() === 'builder') {
             builder.run(creep);
         }
     }

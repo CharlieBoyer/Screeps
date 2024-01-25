@@ -1,7 +1,5 @@
 module.exports = {
 
-    /** FSM **/
-
     states: {
         STANDBY: 'Standby',
         HARVESTING: 'Harvesting',
@@ -37,73 +35,24 @@ module.exports = {
         }
     },
 
-
-    /** @param {Creep} creep **/
-    oldRun: function(creep)
-    {
-        if (creep.memory.harvesting)
-            creep.say('⛏️ Harvest...');
-
-        if (creep.store.getFreeCapacity() > 0)
-        {
-            let sources = creep.room.find(FIND_SOURCES);
-
-            if (creep.harvest(sources[0]) === ERR_NOT_IN_RANGE) {
-                creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00'}});
-                creep.memory.harvesting = true;
-            }
-        }
-        else
-        {
-            creep.memory.harvesting = false;
-
-            let targets = creep.room.find(FIND_STRUCTURES, {
-                filter: (structure) => {
-                    return (structure.structureType === STRUCTURE_EXTENSION ||
-                            structure.structureType === STRUCTURE_SPAWN ||
-                            structure.structureType === STRUCTURE_TOWER) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-                }
-            });
-
-            if (targets.length > 0)
-            {
-                if (creep.transfer(targets[0], RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
-                    creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
-                }
-            }
-        }
-    },
-
     harvestEnergy: function(creep) {
-        let sources = creep.room.find(FIND_SOURCES, {
-            filter: (source) => {
-                return source.energy > 0;
-            }
-        });
-        let targetSource = creep.pos.findClosestByPath(sources);
+        let source = creep.findClosest(FIND_SOURCES, filters.activeSources);
 
-        if (targetSource == null)
+        if (source == null)
             creep.memory.state = this.states.STANDBY;
 
-        if (creep.harvest(targetSource) === ERR_NOT_IN_RANGE)
-            creep.moveTo(sources[0], {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
+        if (creep.harvest(source) === ERR_NOT_IN_RANGE)
+            creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
 
-        if (creep.store.getFreeCapacity(RESOURCE_ENERGY) <= 0)
+        if (creep.isFull())
             creep.memory.state = this.states.STORING;
     },
 
     storeEnergy: function (creep) {
-        let structures = creep.room.find(FIND_STRUCTURES, {
-           filter: (structure) => {
-               return (structure.structureType === STRUCTURE_SPAWN ||
-                        structure.structureType === STRUCTURE_EXTENSION) &&
-                        structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-           }
-        });
-        let closestStructure = creep.pos.findClosestByPath(structures);
+        let structures = creep.findClosest(FIND_STRUCTURES, [filters.structureDepleted, filters.is(STRUCTURE_SPAWN, STRUCTURE_EXTENSION)])
+        let containers = creep.findClosest(FIND_STRUCTURES, [filters.is(STRUCTURE_CONTAINER, STRUCTURE_STORAGE), filters.])
 
-        let containers = creep.room.find(FIND_STRUCTURES, {
+            creep.room.find(FIND_STRUCTURES, {
             filter: (structure) => {
                 return (structure.structureType === STRUCTURE_CONTAINER) &&
                     structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;

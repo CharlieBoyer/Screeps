@@ -1,27 +1,58 @@
 module.exports = {
 
-    /** @param {Creep} creep **/
-    run: function(creep) {
+    states: {
+        BUILDING: 'Building',
+        REPAIRING: 'Repairing',
+        RECHARGING: 'Recharging',
+        STANDBY: 'Standby',
+    },
 
-        if (creep.memory.building && creep.store[RESOURCE_ENERGY] == 0) {
+    run: function(creep) {
+        switch (creep.memory.state)
+        {
+            case this.states.BUILDING:
+                return this.standby(creep);
+            case this.states.REPAIRING:
+                return this.repair(creep);
+            case this.states.STANDBY(creep):
+                return this.standby(creep);
+        }
+    },
+
+    build: function(creep)
+    {
+        if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= 0)
+
+
+        if (creep.store.getFreeCapacity() === 0) {
+            creep.say('🚧 Build');
+        }
+
+        let targets
+    },
+
+    /** @param {Creep} creep **/
+    oldrun: function(creep) {
+
+        if (creep.memory.building && creep.store[RESOURCE_ENERGY] === 0) {
             creep.memory.building = false;
             creep.say('🔄 Collect');
         }
-        if (!creep.memory.building && creep.store.getFreeCapacity() == 0) {
+        if (!creep.memory.building && creep.store.getFreeCapacity() === 0) {
             creep.memory.building = true;
             creep.say('🚧 Build');
         }
 
         if (creep.memory.building) {
             let targets = creep.room.find(FIND_CONSTRUCTION_SITES);
-            if(targets.length) {
+            if (targets.length) {
                 if(creep.build(targets[0]) === ERR_NOT_IN_RANGE) {
                     creep.moveTo(targets[0], {visualizePathStyle: {stroke: '#ffffff'}});
                 }
             }
         }
         else if (creep.store.getUsedCapacity(RESOURCE_ENERGY) > 0) {
-            this.repair();
+            this.repair(creep);
         }
         else {
             let containers = creep.room.find(FIND_STRUCTURES, {

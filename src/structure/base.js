@@ -15,7 +15,6 @@ module.exports = {
 
     init: function () {
         let mainSpawn = Game.spawns['HQ'];
-        mainSpawn.memory.type = 'base';
         mainSpawn.memory.state = this.states.WAKE;
         this.spawn('harvester', [WORK, CARRY, MOVE, MOVE]);
     },
@@ -32,15 +31,15 @@ module.exports = {
             case this.states.RAID:
                 return this.launchRaid(Memory.nextRoomTarget);
             default:
-                return this.UPGRADE;
+                return this.states.WAKE;
         }
     },
 
     spawn: function(role, modules)  {
-        const unitName = `${role}_${Memory[role].count}`;
+        const unitName = `${role}_${Memory['roles'][role].unitCount}`;
         let result = Game.spawns['HQ'].spawnCreep(modules, unitName, {memory: {role}});
 
-        if (result === 0) Memory[role].count++;
+        if (result === 0) Memory['roles'][role].unitCount++;
         return result;
     },
 
@@ -48,17 +47,22 @@ module.exports = {
         const roles = ['harvester', 'builder', 'controller']; // Add more roles as needed
         const getModulesForRole = (role) => {
             switch (role) {
-                case 'harvester':  return [WORK, WORK, CARRY, MOVE];
+                case 'harvester':  return [WORK, CARRY, MOVE, MOVE];
                 case 'builder':    return [WORK, CARRY, CARRY, MOVE, MOVE];
-                case 'fixer':      return [WORK, CARRY, CARRY, MOVE, MOVE];
                 case 'controller': return [WORK, CARRY, MOVE, MOVE];
                 default:           return [WORK, CARRY, MOVE, MOVE];
             }
         };
 
+        roles.sort((roleA, roleB) => {
+            const priorityA = Memory['roles'][roleA] ? Memory['roles'][roleA].priority : 0;
+            const priorityB = Memory['roles'][roleB] ? Memory['roles'][roleB].priority : 0;
+            return priorityA - priorityB;
+        });
+
         roles.forEach(role => {
-            const currentCount = Memory[role] ? Memory[role].count : 0;
-            const targetCount = Memory[role] ? Memory[role].target : 0;
+            const currentCount = Memory['roles'][role] ? Memory['roles'][role].unitCount : 0;
+            const targetCount = Memory['roles'][role] ? Memory['roles'][role].unitTarget : 0;
 
             if (currentCount < targetCount) {
                 const modules = getModulesForRole(role);
