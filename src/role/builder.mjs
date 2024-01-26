@@ -1,13 +1,12 @@
-module.exports = {
-
-    states: {
+    export const states = {
         BUILDING: 'Building',
         REPAIRING: 'Repairing',
         RECHARGING: 'Recharging',
         STANDBY: 'Standby',
-    },
+    }
 
-    run: function(creep) {
+    export function run(creep)
+    {
         switch (creep.memory.state)
         {
             case this.states.BUILDING:

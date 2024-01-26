@@ -1,16 +1,16 @@
 // Prototypes overload
-require('addons.creepAddons');
-require('addons.structureAddons');
-
-// Globals & Utils
-global.memory = require('memory');
-global.filters = require('utils.filters');
+import "./addons/creepAddons"
+import "./addons/structureAddons";
 
 // Modules
-const base = require('structure.base');
-const harvester = require('role.harvester');
-const controller = require('role.controller');
-const builder = require('role.builder');
+import * as memory from "./memory";
+import * as filters from "./utils/filters";
+import * as base from "./structure/base"
+import * as harvester from "./role/harvester";
+
+// Globals & Utils
+global.memory = memory;
+global.filters = filters;
 
 memory.init();
 base.init();

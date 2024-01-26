@@ -1,7 +1,3 @@
-const harvester = require('role.harvester');
-const controller = require('role.controller');
-const builder = require('role.builder');
-
 module.exports = {
 
     states: {

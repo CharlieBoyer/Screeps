@@ -1,7 +1,7 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Test branch on public" type="js.build_tools.grunt">
     <node-interpreter value="project" />
-    <gruntfile value="$PROJECT_DIR$/Gruntfile.js" />
+    <gruntfile value="$PROJECT_DIR$/Gruntfile.cjs" />
     <tasks>
       <task value="default" />
     </tasks>
