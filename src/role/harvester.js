@@ -1,9 +1,9 @@
 module.exports = {
 
     states: {
-        STANDBY: 'Standby',
-        HARVESTING: 'Harvesting',
-        STORING: 'Storing'
+        STANDBY: 'standby',
+        HARVESTING: 'harvesting',
+        STORING: 'storing'
     },
 
     /* transitions: {
@@ -49,23 +49,18 @@ module.exports = {
     },
 
     storeEnergy: function (creep) {
-        let structures = creep.findClosest(FIND_STRUCTURES, [filters.structureDepleted, filters.is(STRUCTURE_SPAWN, STRUCTURE_EXTENSION)])
-        let containers = creep.findClosest(FIND_STRUCTURES, [filters.is(STRUCTURE_CONTAINER, STRUCTURE_STORAGE), filters.])
+        let structure = creep.findClosest(FIND_STRUCTURES, [filters.structureUnfilled, filters.is(STRUCTURE_SPAWN, STRUCTURE_EXTENSION)])
+        let storage = creep.findClosest(FIND_STRUCTURES, [filters.is(STRUCTURE_CONTAINER, STRUCTURE_STORAGE), filters.structureUnfilled])
 
-            creep.room.find(FIND_STRUCTURES, {
-            filter: (structure) => {
-                return (structure.structureType === STRUCTURE_CONTAINER) &&
-                    structure.store.getFreeCapacity(RESOURCE_ENERGY) > 0;
-            }
-        });
-        let closestContainer = creep.pos.findClosestByPath(containers);
-
-        if (closestStructure == null && closestContainer == null) {
-            creep.memory.state = this.states.STANDBY;
+        if (structure == null && storage == null) {
+            creep.memory.state = this.states.STANDBY; // Unavailable storages/structures full
             return;
         }
+        else {
+            let target = structure ? structure : storage;
+        }
 
-        let targetDeposit = closestStructure ? closestStructure : closestContainer;
+
         if (creep.transfer(targetDeposit, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
             creep.moveTo(targetDeposit);
         }

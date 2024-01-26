@@ -16,7 +16,7 @@ module.exports = {
         }; */
     },
 
-    structureUnfilled: (structure) => (structure instanceof Structure && !Structure.haveFreeSpace()),
+    structureUnfilled: (structure) => (structure instanceof Structure && !structure.haveFreeSpace()),
     structureDepleted: (structure) => (structure instanceof Structure && structure.isEmpty()),
 
     is: (types) => (target) => target instanceof Structure && types.includes(target.structureType),

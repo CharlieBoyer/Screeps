@@ -5,12 +5,11 @@ const builder = require('role.builder');
 module.exports = {
 
     states: {
-        WAKE: 'Wake',
-        UPGRADE: 'Upgrade',
-        REINFORCE: 'Reinforce',
-        FAILSAFE: 'Failsafe',
-        CONTROL: 'Control',
-        RAID: 'Raid'
+        WAKE: 'wake',
+        UPGRADE: 'upgrade',
+        FAILSAFE: 'failsafe',
+        CONTROL: 'control',
+        RAID: 'raid'
     },
 
     init: function () {

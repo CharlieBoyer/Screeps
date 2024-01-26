@@ -3,7 +3,7 @@
  * Return undefined if the structure doesn't have a store.
  * @return {boolean|undefined}
  */
-Structure.prototype.isEmpty = function() {
+Structure.prototype.isEmpty = function () {
     return this.store ? this.store.getUsedCapacity() <= 0 : undefined;
 }
 
