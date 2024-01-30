@@ -21,12 +21,26 @@ Creep.prototype.isFull = function() {
 }
 
 /**
- * Find the closest target that matches stackable filters
- * @param {FindConstant} target
- * @param {any} filter
+ * Find the closest targets that matches stackable filters
+ * @param {FindConstant} target Find constant of the targets to find
+ * @param {any} filters Optional filters
+ * @param {boolean} closest Return only the closest target that matches ?
  * @return {any} results
  */
-Creep.prototype.findClosest = function(target, filter) {
-    let results = this.room.find(target, filter);
-    return this.pos.findClosestByPath(results)
+Creep.prototype.find = function(target, filters, closest) {
+    let results = this.room.find(target, filters);
+
+    if (closest)
+        return this.pos.findClosestByPath(results)
+    else
+        return results;
 };
+
+Creep.prototype.switchState = function(state) {
+    this.memory.state = state;
+}
+
+Creep.prototype.convert = function(role) {
+    this.memory.role = role;
+    this.memory.state = null;
+}
