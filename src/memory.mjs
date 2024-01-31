@@ -10,7 +10,7 @@ global.memory = {
             },
             builder: {
                 unitCount: 0,
-                ratio: 1,
+                ratio: 2,
                 priority: 2,
             },
             controller: {
