@@ -1,5 +1,5 @@
 export const states = {
-    WAKE: "wake",
+    WAKE: 'wake',
     UPGRADE: 'upgrade',
     FAILSAFE: 'failsafe',
     CONTROL: 'control',
@@ -8,22 +8,22 @@ export const states = {
 
 export function init() {
     let mainSpawn = Game.spawns['HQ'];
-    mainSpawn.memory.state = this.states.WAKE;
-    this.spawn('harvester', [WORK, CARRY, MOVE, MOVE]);
+    mainSpawn.switchState(states.WAKE);
+    spawn('harvester', [WORK, CARRY, MOVE, MOVE]);
 }
 
 export function run(spawn) {
     switch (spawn.memory.state) {
-        case this.states.WAKE:
-            return this.wakeSetup();
-        case this.states.UPGRADE:
-            return this.upgradeRoutine();
-        case this.states.FAILSAFE:
-            return this.failsafe();
-        case this.states.RAID:
-            return this.launchRaid(Memory.nextRoomTarget);
+        case states.WAKE:
+            return wakeSetup(spawn);
+        case states.UPGRADE:
+            return upgradeRoutine(spawn);
+        case states.FAILSAFE:
+            return failsafe(spawn);
+        case states.RAID:
+            return launchRaid(spawn, Memory.nextRoomTarget);
         default:
-            return this.states.WAKE;
+            return states.WAKE;
     }
 }
 
@@ -35,8 +35,11 @@ export function spawn(role, modules) {
     return result;
 }
 
-export function wakeSetup() {
-    const roles = ['harvester', 'builder', 'controller']; // Add more roles as needed
+/**
+ * @param {Spawn} spawner
+ */
+export function wakeSetup(spawner) {
+    const roles = Memory.activeRoles;
     const getModulesForRole = (role) => {
         switch (role) {
             case 'harvester':
@@ -49,32 +52,55 @@ export function wakeSetup() {
                 return [WORK, CARRY, MOVE, MOVE];
         }
     };
-
+    
     roles.sort((roleA, roleB) => {
         const priorityA = Memory['roles'][roleA] ? Memory['roles'][roleA].priority : 0;
         const priorityB = Memory['roles'][roleB] ? Memory['roles'][roleB].priority : 0;
         return priorityA - priorityB;
     });
-
+    
+    // Counter to keep track of the number of creeps spawned for the current role
+    let spawnCounter = 0;
+    
     roles.forEach(role => {
-        const currentCount = Memory['roles'][role] ? Memory['roles'][role].unitCount : 0;
-        const targetCount = Memory['roles'][role] ? Memory['roles'][role].unitTarget : 0;
-
-        if (currentCount < targetCount) {
+        const roleMemory = Memory['roles'][role];
+        const currentCount = roleMemory ? roleMemory.unitCount : 0;
+        const ratio = roleMemory.ratio;
+        
+        // Calculate the target count based on ratio
+        const targetCount = currentCount + ratio;
+        
+        // Spawn creeps until the target count is reached
+        while (spawnCounter < targetCount) {
             const modules = getModulesForRole(role);
-            this.spawn(role, modules);
+            spawn(role, modules);
+            spawnCounter++;
         }
     });
+    
+    // Reset spawn counter when all roles are iterated
+    if (spawnCounter >= roles.length) {
+        spawnCounter = 0;
+    }
 }
 
-export function upgradeRoutine() {
+export function upgradeRoutine(spawn) {
     return undefined;
 }
 
-export function failsafe() {
+/**
+ * @param {Spawn} spawn
+ * @return {undefined}
+ */
+export function failsafe(spawn) {
     return undefined;
 }
 
-export function launchRaid(nextRoomTarget) {
+/**
+ * @param {Spawn} spawn
+ * @param nextRoomTarget
+ * @return {undefined}
+ */
+export function launchRaid(spawn, nextRoomTarget) {
     return undefined;
 }

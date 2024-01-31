@@ -21,53 +21,65 @@ export const states = {
 
 export function run(creep) {
     switch (creep.memory.state) {
-        case this.states.STANDBY:
-            return this.standby(creep);
-        case this.states.HARVESTING:
-            return this.harvestEnergy(creep);
-        case this.states.STORING:
-            return this.storeEnergy(creep);
+        case states.STANDBY:
+            return standby(creep);
+        case states.HARVESTING:
+            return harvestEnergy(creep);
+        case states.STORING:
+            return storeEnergy(creep);
         default:
-            creep.memory.state = this.states.HARVESTING;
+            return creep.switchState(states.HARVESTING);
     }
 }
 
+/**
+ * Default HARVESTING state behaviour
+ * @param {Creep} creep
+ */
 export function harvestEnergy(creep) {
-    let source = creep.find(FIND_SOURCES, filters.activeSources, true);
+    let source = creep.find(FIND_SOURCES, [filters.activeSources], true);
 
-    if (source == null)
-        creep.memory.state = this.states.STANDBY;
-
-    if (creep.harvest(source) === ERR_NOT_IN_RANGE)
+    if (source === null)
+        creep.memory.state = states.STANDBY;
+    else if (creep.harvest(source) === ERR_NOT_IN_RANGE)
         creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
 
     if (creep.isFull())
-        creep.memory.state = this.states.STORING;
+        creep.switchState(states.STORING);
 }
 
+/**
+ * STORING state : store either in dedicated storages or in spawns/extensions
+ * @param {Creep} creep
+ */
 export function storeEnergy(creep) {
-    let structure = creep.findClosest(FIND_STRUCTURES, [filters.structure.unfilled, filters.structure.is(STRUCTURE_SPAWN, STRUCTURE_EXTENSION)])
-    let storage = creep.findClosest(FIND_STRUCTURES, [filters.structure.unfilled, filters.structure.is(STRUCTURE_CONTAINER, STRUCTURE_STORAGE)])
+    let structure = creep.find(FIND_STRUCTURES, [filters.structure.is(STRUCTURE_SPAWN, STRUCTURE_EXTENSION), filters.structure.available], true);
+    let storage = creep.find(FIND_STRUCTURES, [filters.structure.is(STRUCTURE_CONTAINER, STRUCTURE_STORAGE), filters.structure.available], true);
     let target;
-
+    
     if (structure === null && storage === null) {
-        creep.memory.state = this.states.STANDBY; // Unavailable storages/structures full
+        creep.switchState(states.STANDBY); // Unavailable storages/structures full
         return;
     } else {
-        target = structure ? structure : storage;
+        target = structure ? structure : storage; // Prioritize structures over storages
     }
 
     if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
         creep.moveTo(target);
     }
 
-    if (creep.store.getUsedCapacity(RESOURCE_ENERGY) <= 0) {
-        creep.memory.state = this.states.HARVESTING;
+    if (creep.isEmpty()) {
+        creep.switchState(states.HARVESTING);
     }
 }
 
+/**
+ * Refresh state based on creep's Capacity or move to StandbyZone Flag
+ * @param {Creep} creep
+ */
 export function standby(creep) {
     let capacity = creep.store.getFreeCapacity(RESOURCE_ENERGY);
+
     if (capacity === 0) {
         this.storeEnergy(creep);
     } else if (capacity > 0) {
