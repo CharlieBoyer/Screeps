@@ -1,7 +1,8 @@
 export const states = {
     STANDBY: 'standby',
     HARVESTING: 'harvesting',
-    STORING: 'storing'
+    STORING: 'storing',
+    RECYCLE: 'recycle'
 }
 
 /*export const transitions = {
@@ -20,6 +21,11 @@ export const states = {
 } */
 
 export function run(creep) {
+    if (creep.ticksToLive < CREEP_LIFE_TIME * 0.15) {
+        creep.recycle();
+        return;
+    }
+
     switch (creep.memory.state) {
         case states.STANDBY:
             return standby(creep);
@@ -27,6 +33,8 @@ export function run(creep) {
             return harvestEnergy(creep);
         case states.STORING:
             return storeEnergy(creep);
+        case states.RECYCLE:
+            return creep.recycle();
         default:
             return creep.switchState(states.HARVESTING);
     }
@@ -37,12 +45,21 @@ export function run(creep) {
  * @param {Creep} creep
  */
 export function harvestEnergy(creep) {
-    let source = creep.find(FIND_SOURCES, [filters.activeSources], true);
+    let target = creep.find(FIND_DROPPED_RESOURCES, [filters.resources.is(RESOURCE_ENERGY)], true);
 
-    if (source === null)
-        creep.memory.state = states.STANDBY;
-    else if (creep.harvest(source) === ERR_NOT_IN_RANGE)
-        creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
+    if (target !== null) {
+        if (creep.pickup(target) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target, {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
+        }
+    }
+    else {
+        let source = creep.find(FIND_SOURCES, [filters.activeSources], true);
+
+        if (source === null)
+            creep.memory.state = states.STANDBY;
+        else if (creep.harvest(source) === ERR_NOT_IN_RANGE)
+            creep.moveTo(source, {visualizePathStyle: {stroke: '#ffaa00', lineStyle: 'dotted'}});
+    }
 
     if (creep.isFull())
         creep.switchState(states.STORING);
@@ -64,8 +81,16 @@ export function storeEnergy(creep) {
         target = structure ? structure : storage; // Prioritize structures over storages
     }
 
-    if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+    if (target instanceof STRUCTURE_SPAWN || target instanceof STRUCTURE_EXTENSION) {
+        if (creep.transfer(target, RESOURCE_ENERGY) === ERR_NOT_IN_RANGE) {
+            creep.moveTo(target);
+        }
+    }
+    else if (target instanceof STRUCTURE_CONTAINER || target instanceof STRUCTURE_STORAGE) {
         creep.moveTo(target);
+        if (creep.pos.isEqualTo(target)) {
+            creep.drop(RESOURCE_ENERGY);
+        }
     }
 
     if (creep.isEmpty()) {

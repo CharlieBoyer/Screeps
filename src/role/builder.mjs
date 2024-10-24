@@ -3,9 +3,15 @@ export const states = {
     REPAIRING: 'repairing',
     RECHARGING: 'recharging',
     STANDBY: 'standby',
+    RECYCLE: 'recycle',
 }
 
 export function run(creep) {
+    if (creep.ticksToLive < CREEP_LIFE_TIME * 0.15) {
+        creep.recycle();
+        return;
+    }
+
     switch (creep.memory.state) {
         case states.BUILDING:
             return build(creep);
@@ -15,6 +21,8 @@ export function run(creep) {
             return recharching(creep);
         case states.STANDBY:
             return standby(creep);
+        case states.RECYCLE:
+            return creep.recycle();
         default:
             return creep.switchState(states.STANDBY);
     }
@@ -49,7 +57,7 @@ export function build(creep) {
  * @param {Creep} creep
  */
 export function repair(creep) {
-    const targets = creep.find(FIND_STRUCTURES, [filters.integrity(0.5), filters.structure.not(STRUCTURE_ROAD)]);
+    const targets = creep.find(FIND_STRUCTURES, [filters.structure.is(STRUCTURE_CONTAINER)]);
     
     if (targets) {
         targets.sort((a, b) => a.hits - b.hits); // Sort the lowest integrity structures first ?
@@ -85,7 +93,9 @@ export function recharching(creep) {
     if (!container) {
         target = creep.find(FIND_MY_SPAWNS, [filters.structure.haveEnergy()], true);
         if (!target) {
-            creep.find(FIND_MY_SPAWNS, [], true);
+            creep.find(FIND_MY_SPAWNS, function () {
+                return false;
+            }, true);
             creep.moveTo(target, {visualizePathStyle: {stroke: '#720000'}}); // Fallback to the closest spawn and standby
             creep.switchState(states.STANDBY);
             return;

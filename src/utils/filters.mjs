@@ -7,6 +7,15 @@ export const activeSources = function (source) {
     return source ? source instanceof Source && source.energy > 0 : false;
 }
 
+
+export const resources = {
+    is: function (types) {
+        return function (target) {
+            return target ? target instanceof Resource && types.includes(target.resourceType) : false;
+        };
+    }
+}
+
 export const structure = {
     haveEnergy: function (target) {
         return target ? target instanceof Structure && target.haveEnergy() : false;

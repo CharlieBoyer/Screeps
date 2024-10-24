@@ -82,6 +82,8 @@ export function wakeSetup(spawner) {
     if (spawnCounter >= roles.length) {
         spawnCounter = 0;
     }
+
+    return spawner.switchState(states.UPGRADE);
 }
 
 export function upgradeRoutine(spawn) {

@@ -1,14 +1,22 @@
 export const states = {
     UPGRADING: 'upgrading',
     RECHARGING: 'recharching',
+    RECYCLE: 'recycle',
 }
 
 export function run(creep) {
+    if (creep.ticksToLive < CREEP_LIFE_TIME * 0.15) {
+        creep.recycle();
+        return;
+    }
+
     switch (creep.memory.state) {
         case states.UPGRADING:
             return upgradeController(creep);
         case states.RECHARGING:
             return recharching(creep);
+        case states.RECYCLE:
+            return creep.recycle();
         default:
             return creep.switchState(states.UPGRADING);
     }

@@ -4,16 +4,19 @@ global.memory = {
     {
         Memory.roles = {
             harvester: {
+                unitCounter: 0,
                 unitCount: 0,
                 ratio: 3,
                 priority: 3,
             },
             builder: {
+                unitCounter: 0,
                 unitCount: 0,
                 ratio: 2,
                 priority: 2,
             },
             controller: {
+                unitCounter: 0,
                 unitCount: 0,
                 ratio: 2,
                 priority: 1,

@@ -54,9 +54,6 @@ Creep.prototype.find = function(target, filters, closest= false) {
         if (typeof filter === 'function') {
             results = results.filter(filter);
         }
-        else if (filter !== []) {
-            console.log("Error: supplied a non-function filter for creep.find");
-        }
     }
     
     if (closest)
@@ -67,6 +64,13 @@ Creep.prototype.find = function(target, filters, closest= false) {
 
 Creep.prototype.switchState = function(state) {
     this.memory.state = state;
+}
+
+Creep.prototype.recycle = function() {
+    let structure = this.find(FIND_STRUCTURES, [filters.structure.is(STRUCTURE_SPAWN)], true);
+    this.moveTo(structure);
+    structure.recycleCreep(this);
+    return 0;
 }
 
 /**
